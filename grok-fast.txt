@@ -1,0 +1,68 @@
+User: Prompt
+
+You are reviewing an existing frontend Todo application codebase.
+
+Please review the code and share what stands out to you.
+
+Title:
+Frontend Todo Application Code Review & Question Capability Evaluation
+
+Description:
+This task evaluates the model’s ability to collaboratively review an existing frontend Todo application codebase and naturally identify areas of uncertainty, risk, or inconsistency. The focus is on whether the model can proactively surface thoughtful, context-aware questions as part of a realistic code review process, without being explicitly instructed to ask questions. The model is expected to observe the codebase holistically, recognize missing context or implicit assumptions, and raise clarifying questions that would help align understanding, guide discussion, and improve the quality and maintainability of the application, rather than immediately proposing solutions or changes.
+
+GitHub Copilot: Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/package.json)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/App.tsx#1-1), lines 1 to 50
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/App.tsx#51-51), lines 51 to 67
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/components/TodoForm.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/components/TodoList.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/components/FilterBar.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/utils/storage.ts)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/utils/helpers.ts)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/main.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/index.css#1-1), lines 1 to 50
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/README.md)
+
+### Code Review: Frontend Todo Application
+
+#### Overall Structure and Architecture
+The application is a well-organized React TypeScript project using Vite for build tooling. The component structure follows a clear separation of concerns with App.tsx managing state, `TodoForm` for input, `TodoList` for display, and `FilterBar` for filtering. The use of TypeScript provides good type safety, and the project includes ESLint for code quality.
+
+#### Strengths
+- Clean component interfaces with proper prop typing.
+- Responsive form handling in `TodoForm` with input validation (trimming whitespace).
+- Efficient filtering logic in App.tsx without unnecessary re-renders.
+- Utility functions in storage.ts and helpers.ts are modular and reusable.
+- CSS is straightforward and uses modern practices like flexbox.
+
+#### Areas of Concern
+- **Persistence Implementation**: The `loadTodos` and `saveTodos` functions are imported in App.tsx but never called. Todos are initialized as an empty array and lost on page refresh. Is this intentional, or should localStorage be integrated to persist state across sessions?
+- **Unused Utility Functions**: Functions like `sortTodosByPriority`, `formatDate`, and `getCompletedCount` in helpers.ts are defined but not utilized anywhere. Are these planned for future features, or can they be removed to reduce dead code?
+- **Missing Features**: No sorting of todos (e.g., by priority or creation date). The `createdAt` field exists in the `Todo` interface but isn't displayed or used for ordering. Should todos be sorted by priority descending, or is chronological order preferred?
+- **Error Handling**: While storage.ts includes try-catch for localStorage operations, there's no user feedback or fallback UI for failures. How should storage errors be communicated to the user?
+- **Accessibility**: Form elements lack ARIA labels or roles. For example, the priority select and filter buttons could benefit from better screen reader support. Are accessibility improvements planned?
+- **Validation**: `TodoForm` only checks for non-empty text after trimming, but no limits on length or content. Should there be constraints on todo text (e.g., max 200 characters)?
+- **State Management**: With only basic CRUD operations, `useState` suffices, but if features expand (e.g., editing, categories), would a library like Zustand be considered?
+- **Testing**: No test files or scripts in package.json. Is testing (unit/integration) part of the development process?
+- **Performance**: For large todo lists, rendering could be optimized with `React.memo` or virtualization. Is there an expected upper limit on todos?
+- **UI/UX**: The "No tasks found" message appears for filtered results too. Should it differentiate between no todos at all vs. no matches for the current filter?
+
+#### Questions for Clarification
+- What is the intended behavior for todo persistence? Should `loadTodos` be called on app mount and `saveTodos` on state changes?
+- Are the helper functions in helpers.ts meant for upcoming features like sorting or statistics display?
+- How should todos be ordered by default? Priority-based, or by creation time?
+- Is editing existing todos a planned feature? If so, how would that integrate with the current structure?
+- Are there plans for additional fields like due dates, categories, or user authentication?
+- How should edge cases like localStorage being full or unavailable be handled?
+- What are the acceptance criteria for accessibility and performance?
+
+The codebase is functional and maintainable for a basic todo app, but addressing these points would enhance robustness and user experience. If you'd like me to implement any fixes or expansions, let me know.

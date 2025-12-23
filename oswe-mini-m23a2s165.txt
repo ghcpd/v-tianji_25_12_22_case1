@@ -1,0 +1,120 @@
+User: Prompt
+You are reviewing an existing frontend Todo application codebase.
+
+Please review the code and share what stands out to you.
+
+Title:
+Frontend Todo Application Code Review & Question Capability Evaluation
+Description:
+This task evaluates the model’s ability to collaboratively review an existing frontend Todo application codebase and naturally identify areas of uncertainty, risk, or inconsistency. The focus is on whether the model can proactively surface thoughtful, context-aware questions as part of a realistic code review process, without being explicitly instructed to ask questions. The model is expected to observe the codebase holistically, recognize missing context or implicit assumptions, and raise clarifying questions that would help align understanding, guide discussion, and improve the quality and maintainability of the application, rather than immediately proposing solutions or changes.
+
+GitHub Copilot: Reading core app files and components first to capture main logic, state flow, and storage behavior. I'll fetch App.tsx, all components, and storage.ts now.
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/App.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/components/TodoList.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/components/TodoForm.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/components/FilterBar.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/utils/storage.ts)
+
+Next, I'll inspect the project entry points, build scripts, and CSS to verify initialization and styling. I'll fetch package.json, main.tsx, index.css, index.html, and README.md.
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/package.json)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/main.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/index.css)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/index.html)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/README.md)
+
+I'll also open helpers.ts to see utility functions referenced by README.
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/utils/helpers.ts)
+
+Searching the codebase for usages of utility helpers and storage functions to confirm what's actually used.
+
+Searched for regex `formatDate|sortTodosByPriority|getCompletedCount|loadTodos|saveTodos` (`**/src/**`), 7 results
+
+Status: Scanned the app entry, all components, and utility files — found several concrete gaps and a few low-risk improvements. ✅
+
+## Frontline summary
+A small, well-structured React + TypeScript Todo app with clear component separation and clean CSS. Major missing behavior: **persistence and several utility functions are defined but unused**, which creates maintenance and correctness risk.
+
+---
+
+## What stands out (good)
+- Clear folder structure and simple component boundaries (`TodoForm`, `TodoList`, `FilterBar`). 🔧  
+- Clean, readable UI/CSS (index.css) and accessible visual hierarchy. 🎨  
+- Types used for `Todo` in App.tsx — good starting point for stronger typing.
+
+---
+
+## Issues, risks & code smells (priority order)
+1. Persistent storage is broken / not wired
+   - `loadTodos` / `saveTodos` are imported in App.tsx but **never used** — no localStorage persistence. (storage.ts has implementation but is unused.)
+   - Risk: users lose data on refresh; dead imports confuse maintainers.
+
+2. Unused utility functions
+   - helpers.ts exports (`formatDate`, `sortTodosByPriority`, `getCompletedCount`) but none are referenced anywhere. This suggests incomplete features or stale code.
+
+3. Type safety and API surface
+   - `saveTodos` / `loadTodos` use loose types (`unknown[]` / any-like return). Prefer strongly typed signatures (use `Todo[]`).
+   - `sortTodosByPriority` sorts in-place (mutates input) — unexpected side effects.
+
+4. UX / feature gaps (likely expected)
+   - No edit/update for existing todos.
+   - No "clear completed" or total/remaining counts in UI.
+   - No sort-by-priority or createdAt ordering in UI (utilities hint these were intended).
+
+5. Accessibility & semantics
+   - Form input lacks label/aria-label. Buttons could use aria-attributes for screen readers.
+   - Keyboard interactions (Enter to submit works, but more ARIA could help).
+
+6. Testing & tooling
+   - No tests present (unit / component).
+   - package.json has an ESLint script but I don't see an ESLint config file — check for `.eslintrc` (may be missing).
+
+7. Minor correctness
+   - IDs use `Date.now().toString()` — OK for small apps but may risk collisions in edge cases.
+   - `sortTodosByPriority` uses loose typing for `priority` string.
+
+---
+
+## Concrete, context-seeking questions (helps prioritize next work)
+1. Persistence intent: Should todos persist in localStorage (or remote)? — storage.ts suggests yes; do you want me to wire `loadTodos`/`saveTodos` into `App`?
+2. Utility usage: Are `formatDate`, `sortTodosByPriority`, `getCompletedCount` intended to be used in the UI (e.g., show created date, sorting, counters)?
+3. Feature scope: Do you expect editing tasks, bulk operations (clear completed), or server sync in the near future?
+4. UX expectations: Should new items be auto-sorted by priority or timestamp, or maintain insertion order?
+5. Accessibility/standards: Do you want me to add ARIA/keyboard improvements and run an a11y pass?
+6. Testing & CI: Should I add unit tests (Jest/React Testing Library) and a lint/prettier config?
+7. Type strictness: Want strict typing across utils/storage (use `Todo[]`) and avoid in-place mutations in helpers?
+8. Error handling: How should invalid persisted data be handled (silently reset, attempt migration, surface an error)?
+
+---
+
+## Suggested (minimal) next steps
+1. Decide on persistence behavior (answer Q1) — highest impact.  
+2. Remove or integrate unused utilities depending on scope (Q2).  
+3. Add a small `useEffect` in `App` to load/save `todos` and type `storage` functions.  
+4. Add basic accessibility fixes (labels, aria) and a test or two for core flows.
+
+---
+
+## Quick reference — files I inspected
+- App.tsx — main state & TODO model (imports `loadTodos`/`saveTodos` but doesn’t use them)  
+- TodoForm.tsx, TodoList.tsx, FilterBar.tsx — UI and props  
+- storage.ts, helpers.ts — storage + unused helpers  
+- index.css, main.tsx, index.html, package.json, README.md
+
+---
+
+If you want, I can:
+- Wire persistence and add types + small tests (fast PR) ✅  
+- Or produce a prioritized TODO/issue list from the questions above.
+
+Which of the next steps do you want me to take?

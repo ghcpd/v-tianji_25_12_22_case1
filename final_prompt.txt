@@ -1,0 +1,5 @@
+Prompt
+
+You are reviewing an existing frontend Todo application codebase.
+
+Please review the code and share what stands out to you.

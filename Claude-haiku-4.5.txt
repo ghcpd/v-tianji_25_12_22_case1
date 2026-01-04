@@ -1,0 +1,76 @@
+User: Prompt
+
+You are reviewing an existing frontend Todo application codebase.
+
+Please review the code and share what stands out to you.
+
+Title:
+Frontend Todo Application Code Review & Question Capability Evaluation
+
+Description:
+This task evaluates the model’s ability to collaboratively review an existing frontend Todo application codebase and naturally identify areas of uncertainty, risk, or inconsistency. The focus is on whether the model can proactively surface thoughtful, context-aware questions as part of a realistic code review process, without being explicitly instructed to ask questions. The model is expected to observe the codebase holistically, recognize missing context or implicit assumptions, and raise clarifying questions that would help align understanding, guide discussion, and improve the quality and maintainability of the application, rather than immediately proposing solutions or changes.
+
+GitHub Copilot: I'll review the codebase to understand the application structure and identify areas worth discussing. 
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/package.json)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/App.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/main.tsx)
+
+Now let me read the component files: 
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/components/TodoForm.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/components/TodoList.tsx)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/components/FilterBar.tsx)
+
+Now let me check the utility files: 
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/utils/storage.ts)
+
+Read [](file:///c%3A/Users/v-tianji/Desktop/ghcpd/v-tianji_25_12_22_case1/src/utils/helpers.ts)
+
+## Code Review: Frontend Todo Application
+
+I've reviewed the codebase and found several areas that stand out. Here are my observations and clarifying questions:
+
+### **Observations & Questions**
+
+#### **1. Storage Functions Are Defined But Never Used**
+The storage.ts exports `loadTodos()` and `saveTodos()` functions that are imported in App.tsx but never actually called. The todos state exists only in React state and will be lost on page refresh.
+
+- **Question**: Is persistent storage intentionally not being used, or is this an incomplete implementation? If persistence is desired, should `loadTodos()` be called on component mount and `saveTodos()` be called after every state change?
+
+#### **2. Utility Functions Are Defined But Unused**
+Three helper functions exist in helpers.ts (`formatDate`, `sortTodosByPriority`, `getCompletedCount`) but are never imported or used anywhere.
+
+- **Question**: Are these meant for future features (like a statistics dashboard or priority-sorted view)? Should they be removed as dead code, or do they represent planned functionality?
+
+#### **3. ID Generation Uses Timestamps**
+In App.tsx, todo IDs are generated using `Date.now().toString()`.
+
+- **Question**: Is collision risk acceptable in your use case? If users create todos rapidly, could duplicate IDs theoretically occur? Would a UUID library be more appropriate for production?
+
+#### **4. No Persistence Between Sessions**
+The app loads todos from storage but never saves them, so all data is lost on refresh.
+
+- **Question**: Is this a deliberate design choice (temporary session-based todos), or should the app persist todos across sessions?
+
+#### **5. Priority Filter Isn't Implemented**
+While todos have a `priority` field displayed as badges in TodoList.tsx, the FilterBar.tsx only filters by status (all/active/completed), not by priority.
+
+- **Question**: Should filtering by priority level be a future feature? Is this part of the planned roadmap?
+
+#### **6. No Edit Functionality**
+Once a todo is created, it can only be completed or deleted—not edited.
+
+- **Question**: Is the ability to edit todo text considered out of scope, or is this planned functionality?
+
+#### **7. Empty Initial State**
+Todos start as an empty array with no default data for testing or demo purposes.
+
+- **Question**: Should the app initialize with sample data for better UX/testing, or should it remain empty by design?
+
+These questions would help clarify the intended scope, architecture decisions, and whether any of these are incomplete features awaiting implementation versus deliberate design choices.
